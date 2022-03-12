@@ -1,0 +1,99 @@
+﻿<Window x:Class="Affine.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Affine"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+
+    <Grid >
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Column="0" Grid.Row="0" Margin="3" Background="AliceBlue">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Viewport3D x:Name="v3d" Grid.Row="0" />
+            <Button Content="Обновить картинку" Click="Update3DClick" Grid.Row="1"/>
+        </Grid>
+        <Grid Grid.Column="1" Grid.Row="0" Margin="3">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Image x:Name="i3d" Grid.Row="0" />
+        </Grid>
+
+        <Grid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1">
+            <WrapPanel Orientation="Horizontal">
+                <StackPanel Orientation="Vertical" Background="AliceBlue" Margin="5">
+                    <TextBlock Text="Тип проекции" FontWeight="Bold"/>
+                    <RadioButton GroupName="Projection" Content="Ortho" x:Name="rbProjectionOrtho" IsChecked="True"/>
+                    <RadioButton GroupName="Projection" Content="Perspective" x:Name="rbProjectionPersp"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Vertical" Margin="5">
+                    <TextBlock Text="Координаты вершин" FontWeight="Bold"/>
+                    <TextBox x:Name="objectPoints" AcceptsReturn="True" Height="100" Width="130" Margin="3"/>
+                </StackPanel>
+                <StackPanel Orientation="Vertical" Margin="5">
+                    <TextBlock Text="Индексы граней" FontWeight="Bold"/>
+                    <TextBox x:Name="objectIndices" AcceptsReturn="True" Height="100" Width="130" Margin="3" />
+                </StackPanel>
+
+                <StackPanel Orientation="Vertical" Margin="5">
+                    <TextBlock Text="Камера" FontWeight="Bold"/>
+                    <TextBlock Text="Cx"/>
+                    <TextBox x:Name="Cx" Text="0"/>
+                    <TextBlock Text="Cy"/>
+                    <TextBox x:Name="Cy" Text="0"/>
+                    <TextBlock Text="Cz"/>
+                    <TextBox x:Name="Cz" Text="5"/>
+                </StackPanel>
+
+
+                <StackPanel Orientation="Vertical" Margin="5">
+                    <TextBlock Text="Смещение" FontWeight="Bold"/>
+                    <TextBlock Text="Tx"/>
+                    <TextBox x:Name="Tx" Text="0"/>
+                    <TextBlock Text="Ty"/>
+                    <TextBox x:Name="Ty" Text="0"/>
+                    <TextBlock Text="Tz"/>
+                    <TextBox x:Name="Tz" Text="0"/>
+                </StackPanel>
+                <StackPanel Orientation="Vertical" Margin="5">
+                    <TextBlock Text="Масштабирование" FontWeight="Bold"/>
+                    <TextBlock Text="Sx"/>
+                    <TextBox x:Name="Sx" Text="1"/>
+                    <TextBlock Text="Sy"/>
+                    <TextBox x:Name="Sy" Text="1"/>
+                    <TextBlock Text="Sz"/>
+                    <TextBox x:Name="Sz" Text="1"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Vertical" Margin="5">
+                    <TextBlock Text="Вращение" FontWeight="Bold"/>
+                    <TextBlock Text="Ax"/>
+                    <TextBox x:Name="Ax" Text="0"/>
+                    <TextBlock Text="Ay"/>
+                    <TextBox x:Name="Ay" Text="0"/>
+                    <TextBlock Text="Az"/>
+                    <TextBox x:Name="Az" Text="1"/>
+                    <TextBlock Text="Ф"/>
+                    <TextBox x:Name="Phi" Text="0"/>
+                </StackPanel>
+
+            </WrapPanel>
+        </Grid>
+
+    </Grid>
+</Window>
