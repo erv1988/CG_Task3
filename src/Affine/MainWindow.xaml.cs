@@ -57,7 +57,7 @@ namespace Affine
 
             v3d.Camera = perspectiveCamera;
 
-            objectPoints.Text = string.Join("\n", pyramideVertices.Select(x => $"{x.X} {x.Y} {x.Z}"));
+            objectPoints.Text = string.Join("\n", pyramideVertices.Select(x => string.Format("{0} {1} {2}", x.X, x.Y, x.Z)));
             objectIndices.Text = string.Join(" ", pyramidIndices.Select(x => x.ToString()));
         }
 
@@ -182,40 +182,40 @@ namespace Affine
 
                     HashSet<string> dict = new HashSet<string>();
                     Model3DGroup model3DGroup = new Model3DGroup();
-                    
-                    
+
+
                     for (int i = 0; i < indices.Length;)
                     {
-                        if (!dict.Contains($"{i}-{i + 1}") && !dict.Contains($"{i + 1}-{i}"))
+                        if (!dict.Contains(string.Format("{0}-{1}", i, i + 1)) && !dict.Contains(string.Format("{0}-{1}", i + 1, i)))
                         {
                             byte r = (byte)(random.Next(256));
                             byte g = (byte)(random.Next(256));
                             byte b = (byte)(512 - r - g);
                             Color c = Color.FromRgb(r, g, b);
                             var item = CreateLine(points[indices[i]], points[indices[i + 1]], 0.05, new SolidColorBrush(c));
-                            dict.Add($"{i}-{i + 1}");
+                            dict.Add(string.Format("{0}-{1}", i, i + 1));
                             model3DGroup.Children.Add(item);
                         }
 
-                        if (!dict.Contains($"{i + 1}-{i + 2}") && !dict.Contains($"{i + 2}-{i + 1}"))
+                        if (!dict.Contains(string.Format("{0}-{1}", i + 1, i + 2)) && !dict.Contains(string.Format("{0}-{1}", i + 2, i + 1)))
                         {
                             byte r = (byte)(random.Next(256));
                             byte g = (byte)(random.Next(256));
                             byte b = (byte)(512 - r - g);
                             Color c = Color.FromRgb(r, g, b);
                             var item = CreateLine(points[indices[i + 1]], points[indices[i + 2]], 0.05, new SolidColorBrush(c));
-                            dict.Add($"{i + 1}-{i + 2}");
+                            dict.Add(string.Format("{0}-{1}", i + 1, i + 2));
                             model3DGroup.Children.Add(item);
                         }
 
-                        if (!dict.Contains($"{i}-{i + 2}") && !dict.Contains($"{i + 2}-{i}"))
+                        if (!dict.Contains(string.Format("{0}-{1}", i, i + 2)) && !dict.Contains(string.Format("{0}-{1}", i + 2, i)))
                         {
                             byte r = (byte)(random.Next(256));
                             byte g = (byte)(random.Next(256));
                             byte b = (byte)(512 - r - g);
                             Color c = Color.FromRgb(r, g, b);
                             var item = CreateLine(points[indices[i]], points[indices[i + 2]], 0.05, new SolidColorBrush(c));
-                            dict.Add($"{i}-{i + 2}");
+                            dict.Add(string.Format("{0}-{1}", i, i + 2));
                             model3DGroup.Children.Add(item);
                         }
                         i += 3;
