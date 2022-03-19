@@ -1,19 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Collections.Generic;
 
 namespace Affine
 {
@@ -22,22 +12,6 @@ namespace Affine
     /// </summary>
     public partial class MainWindow : Window
     {
-        ModelVisual3D modelVisual3D = null;
-
-        Point3D[] pyramideVertices = new Point3D[]
-        {
-            new Point3D(0, 0, 1.22),
-            new Point3D(0, 1.73, -0.4 ),
-            new Point3D(-1, -0.577, -0.4),
-            new Point3D(1, -0.577, -0.4),
-        };
-        int[] pyramidIndices = new int[]
-        {
-            0,1,3,
-            0,3,2,
-            0,2,1,
-            1,2,3
-        };
 
         PerspectiveCamera perspectiveCamera = new PerspectiveCamera(
             new Point3D(0, 0, 5),
@@ -57,9 +31,24 @@ namespace Affine
 
             v3d.Camera = perspectiveCamera;
 
-            objectPoints.Text = string.Join("\n", pyramideVertices.Select(x => string.Format("{0} {1} {2}", x.X, x.Y, x.Z)));
-            objectIndices.Text = string.Join(" ", pyramidIndices.Select(x => x.ToString()));
+            objectPoints.Text = string.Join("\n", Pyramide.pyramideVertices.Select(x => string.Format("{0} {1} {2}", x.X, x.Y, x.Z)));
+            objectIndices.Text = string.Join(" ", Pyramide.pyramidIndices.Select(x => x.ToString()));
         }
+
+
+        private void update_2d()
+        {
+            // Обновление окна 2D
+            // Сделана отрисовка для ортогональной проекции для камеры, установленной в положение "вид сверху"
+            // dir = (0,0,-1)
+            // необходимо добавить:
+            // - расчет матриц ортогональной и перспективной проекции относительно положения камеры
+            // - расчет матриц афинных преобразований: вращение вокруг оси, масштаб, перемещение
+
+        }
+
+
+        #region service
 
 
         public Point3D[] ReadPoints()
@@ -160,128 +149,162 @@ namespace Affine
         }
 
 
-        public void Update3d()
+        Point3D[] Points
         {
-            try
+            get
             {
-                Point3D[] points = ReadPoints();
-                int[] indices = ReadIndices();
-                Vector3D translate = new Vector3D(double.Parse(Tx.Text), double.Parse(Ty.Text), double.Parse(Tz.Text));
-                double rotateAngle = double.Parse(Phi.Text) ;
-                Vector3D rotateAxis = new Vector3D(double.Parse(Ax.Text), double.Parse(Ay.Text), double.Parse(Az.Text));
-                Vector3D scale = new Vector3D(double.Parse(Sx.Text), double.Parse(Sy.Text), double.Parse(Sz.Text));
-                Point3D cameraPos = new Point3D(double.Parse(Cx.Text), double.Parse(Cy.Text), double.Parse(Cz.Text));
-
-
-                Random random = new Random(Environment.TickCount);
-
-                // Обновление окна 3D
-                {
-                    v3d.BeginInit();
-                    v3d.Children.Clear();
-
-                    HashSet<string> dict = new HashSet<string>();
-                    Model3DGroup model3DGroup = new Model3DGroup();
-
-
-                    for (int i = 0; i < indices.Length;)
-                    {
-                        if (!dict.Contains(string.Format("{0}-{1}", i, i + 1)) && !dict.Contains(string.Format("{0}-{1}", i + 1, i)))
-                        {
-                            byte r = (byte)(random.Next(256));
-                            byte g = (byte)(random.Next(256));
-                            byte b = (byte)(512 - r - g);
-                            Color c = Color.FromRgb(r, g, b);
-                            var item = CreateLine(points[indices[i]], points[indices[i + 1]], 0.05, new SolidColorBrush(c));
-                            dict.Add(string.Format("{0}-{1}", i, i + 1));
-                            model3DGroup.Children.Add(item);
-                        }
-
-                        if (!dict.Contains(string.Format("{0}-{1}", i + 1, i + 2)) && !dict.Contains(string.Format("{0}-{1}", i + 2, i + 1)))
-                        {
-                            byte r = (byte)(random.Next(256));
-                            byte g = (byte)(random.Next(256));
-                            byte b = (byte)(512 - r - g);
-                            Color c = Color.FromRgb(r, g, b);
-                            var item = CreateLine(points[indices[i + 1]], points[indices[i + 2]], 0.05, new SolidColorBrush(c));
-                            dict.Add(string.Format("{0}-{1}", i + 1, i + 2));
-                            model3DGroup.Children.Add(item);
-                        }
-
-                        if (!dict.Contains(string.Format("{0}-{1}", i, i + 2)) && !dict.Contains(string.Format("{0}-{1}", i + 2, i)))
-                        {
-                            byte r = (byte)(random.Next(256));
-                            byte g = (byte)(random.Next(256));
-                            byte b = (byte)(512 - r - g);
-                            Color c = Color.FromRgb(r, g, b);
-                            var item = CreateLine(points[indices[i]], points[indices[i + 2]], 0.05, new SolidColorBrush(c));
-                            dict.Add(string.Format("{0}-{1}", i, i + 2));
-                            model3DGroup.Children.Add(item);
-                        }
-                        i += 3;
-                    }
-
-                    RotateTransform3D rotateTransform = new RotateTransform3D(new AxisAngleRotation3D(rotateAxis, rotateAngle));
-                    ScaleTransform3D scaleTransform = new ScaleTransform3D(scale);
-                    TranslateTransform3D translateTransform = new TranslateTransform3D(translate);
-
-                    Transform3DGroup transform3DGroup = new Transform3DGroup();
-                    transform3DGroup.Children.Add(scaleTransform);
-                    transform3DGroup.Children.Add(rotateTransform);
-                    transform3DGroup.Children.Add(translateTransform);
-                    model3DGroup.Transform = transform3DGroup;
-
-                    v3d.Children.Add(new ModelVisual3D() { Content = model3DGroup });
-
-                    Vector3D direction = new Vector3D(1, 1, 1);
-                    if (rbProjectionOrtho.IsChecked.Value)
-                    {
-                        v3d.Camera = orthographicCamera;
-                        orthographicCamera.Position = cameraPos;
-                        orthographicCamera.LookDirection = new Point3D(0, 0, 0) - cameraPos;
-                        if (cameraPos.X == 0 && cameraPos.Y == 0)
-                            orthographicCamera.UpDirection = new Vector3D(0, 1, 0);
-                        else
-                            orthographicCamera.UpDirection = new Vector3D(0, 0, 1);
-                        direction = orthographicCamera.LookDirection;
-                    }
-                    if (rbProjectionPersp.IsChecked.Value)
-                    {
-                        v3d.Camera = perspectiveCamera;
-                        perspectiveCamera.Position = cameraPos;
-                        perspectiveCamera.LookDirection = new Point3D(0, 0, 0) - cameraPos;
-                        if (cameraPos.X == 0 && cameraPos.Y == 0)
-                            perspectiveCamera.UpDirection = new Vector3D(0, 1, 0);
-                        else
-                            perspectiveCamera.UpDirection = new Vector3D(0, 0, 1);
-                        direction = perspectiveCamera.LookDirection;
-                    }
-
-                    DirectionalLight light = new DirectionalLight(Colors.White, direction);
-                    v3d.Children.Add(new ModelVisual3D() { Content = light });
-
-                    v3d.EndInit();
-                }
-
-                // Обновление окна 2D
-                {
-                    // Сделана отрисовка для ортогональной проекции для камеры, установленной в положение "вид сверху"
-                    // dir = (0,0,-1)
-                    // необходимо добавить:
-                    // - расчет матриц ортогональной и перспективной проекции относительно положения камеры
-                    // - расчет матриц афинных преобразований: вращение вокруг оси, масштаб, перемещение
-                }
-            }
-            catch(Exception ex)
-            {
-
+                return ReadPoints();
             }
         }
+
+        int[] Indices
+        {
+            get
+            {
+                return ReadIndices();
+            }
+        }
+
+        Vector3D Translate
+        {
+            get
+            {
+                return new Vector3D(double.Parse(Tx.Text), double.Parse(Ty.Text), double.Parse(Tz.Text));
+            }
+        }
+
+        double RotateAngle
+        {
+            get
+            {
+                return double.Parse(Phi.Text);
+            }
+        }
+
+        Vector3D RotateAxis
+        {
+            get
+            {
+                return new Vector3D(double.Parse(Ax.Text), double.Parse(Ay.Text), double.Parse(Az.Text));
+            }
+        }
+
+        Vector3D Scale
+        {
+            get
+            {
+                return new Vector3D(double.Parse(Sx.Text), double.Parse(Sy.Text), double.Parse(Sz.Text));
+            }
+        }
+
+        Point3D CameraPos
+        {
+            get
+            {
+                return new Point3D(double.Parse(Cx.Text), double.Parse(Cy.Text), double.Parse(Cz.Text));
+            }
+        }
+
+        private void update_3d()
+        {
+            Random random = new Random(Environment.TickCount);
+
+            // Обновление окна 3D
+            {
+                v3d.BeginInit();
+                v3d.Children.Clear();
+
+                HashSet<string> dict = new HashSet<string>();
+                Model3DGroup model3DGroup = new Model3DGroup();
+
+
+                for (int i = 0; i < Indices.Length;)
+                {
+                    if (!dict.Contains(string.Format("{0}-{1}", i, i + 1)) && !dict.Contains(string.Format("{0}-{1}", i + 1, i)))
+                    {
+                        byte r = (byte)(random.Next(256));
+                        byte g = (byte)(random.Next(256));
+                        byte b = (byte)(512 - r - g);
+                        Color c = Color.FromRgb(r, g, b);
+                        var item = CreateLine(Points[Indices[i]], Points[Indices[i + 1]], 0.05, new SolidColorBrush(c));
+                        dict.Add(string.Format("{0}-{1}", i, i + 1));
+                        model3DGroup.Children.Add(item);
+                    }
+
+                    if (!dict.Contains(string.Format("{0}-{1}", i + 1, i + 2)) && !dict.Contains(string.Format("{0}-{1}", i + 2, i + 1)))
+                    {
+                        byte r = (byte)(random.Next(256));
+                        byte g = (byte)(random.Next(256));
+                        byte b = (byte)(512 - r - g);
+                        Color c = Color.FromRgb(r, g, b);
+                        var item = CreateLine(Points[Indices[i + 1]], Points[Indices[i + 2]], 0.05, new SolidColorBrush(c));
+                        dict.Add(string.Format("{0}-{1}", i + 1, i + 2));
+                        model3DGroup.Children.Add(item);
+                    }
+
+                    if (!dict.Contains(string.Format("{0}-{1}", i, i + 2)) && !dict.Contains(string.Format("{0}-{1}", i + 2, i)))
+                    {
+                        byte r = (byte)(random.Next(256));
+                        byte g = (byte)(random.Next(256));
+                        byte b = (byte)(512 - r - g);
+                        Color c = Color.FromRgb(r, g, b);
+                        var item = CreateLine(Points[Indices[i]], Points[Indices[i + 2]], 0.05, new SolidColorBrush(c));
+                        dict.Add(string.Format("{0}-{1}", i, i + 2));
+                        model3DGroup.Children.Add(item);
+                    }
+                    i += 3;
+                }
+
+                RotateTransform3D rotateTransform = new RotateTransform3D(new AxisAngleRotation3D(RotateAxis, RotateAngle));
+                ScaleTransform3D scaleTransform = new ScaleTransform3D(Scale);
+                TranslateTransform3D translateTransform = new TranslateTransform3D(Translate);
+
+                Transform3DGroup transform3DGroup = new Transform3DGroup();
+                transform3DGroup.Children.Add(scaleTransform);
+                transform3DGroup.Children.Add(rotateTransform);
+                transform3DGroup.Children.Add(translateTransform);
+                model3DGroup.Transform = transform3DGroup;
+
+                v3d.Children.Add(new ModelVisual3D() { Content = model3DGroup });
+
+                Vector3D direction = new Vector3D(1, 1, 1);
+                if (rbProjectionOrtho.IsChecked.Value)
+                {
+                    v3d.Camera = orthographicCamera;
+                    orthographicCamera.Position = CameraPos;
+                    orthographicCamera.LookDirection = new Point3D(0, 0, 0) - CameraPos;
+                    if (CameraPos.X == 0 && CameraPos.Y == 0)
+                        orthographicCamera.UpDirection = new Vector3D(0, 1, 0);
+                    else
+                        orthographicCamera.UpDirection = new Vector3D(0, 0, 1);
+                    direction = orthographicCamera.LookDirection;
+                }
+                if (rbProjectionPersp.IsChecked.Value)
+                {
+                    v3d.Camera = perspectiveCamera;
+                    perspectiveCamera.Position = CameraPos;
+                    perspectiveCamera.LookDirection = new Point3D(0, 0, 0) - CameraPos;
+                    if (CameraPos.X == 0 && CameraPos.Y == 0)
+                        perspectiveCamera.UpDirection = new Vector3D(0, 1, 0);
+                    else
+                        perspectiveCamera.UpDirection = new Vector3D(0, 0, 1);
+                    direction = perspectiveCamera.LookDirection;
+                }
+
+                DirectionalLight light = new DirectionalLight(Colors.White, direction);
+                v3d.Children.Add(new ModelVisual3D() { Content = light });
+
+                v3d.EndInit();
+            }
+        }
+
 
         private void Update3DClick(object sender, RoutedEventArgs e)
         {
-            Update3d();
+            update_3d();
+            update_2d();
         }
 
+        #endregion
     }
 }
